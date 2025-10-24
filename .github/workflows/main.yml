@@ -1,0 +1,46 @@
+name: upload-lambda-component
+
+on:
+  pull_request:
+    types: [closed]   # Fires when a PR is closed (merged or just closed)
+    branches:
+      - main
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true   # Run only if merged
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package Lambda
+        run: |
+          mkdir -p build
+          zip -r build/doc-gen-lambda.zip . -x "*.git*" "*.github*" "build/*" "node_modules/aws-sdk*"  # AWS SDK already in Lambda runtime
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+      
+      - name: Upload ZIP to S3
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          S3_KEY=lambda-$TIMESTAMP.zip
+          echo "Uploading $S3_KEY to S3 bucket..."
+          aws s3 cp build/lambda.zip s3://nkm-request-letters/$S3_KEY
+          echo "✅ Uploaded as s3://nkm-request-letters/$S3_KEY"
+
+      - name: Done
+        run: echo "🎉 Lambda package created and uploaded to S3 successfully!"
