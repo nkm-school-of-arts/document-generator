@@ -25,7 +25,7 @@ jobs:
       - name: Package Lambda
         run: |
           mkdir -p build
-          zip -r build/doc-gen-lambda.zip . -x "*.git*" "*.github*" "build/*" "node_modules/aws-sdk*"  # AWS SDK already in Lambda runtime
+          zip -r build/doc-gen-lambda.zip . -x "*.git*" "*.github*" "build/*" 
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
