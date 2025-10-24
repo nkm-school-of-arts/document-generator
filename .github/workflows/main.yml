@@ -37,10 +37,10 @@ jobs:
       - name: Upload ZIP to S3
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          S3_KEY=lambda-$TIMESTAMP.zip
+          S3_KEY=doc-gen-lambda-$TIMESTAMP.zip
           echo "Uploading $S3_KEY to S3 bucket..."
-          aws s3 cp build/doc-gen-lambda.zip s3://nkm-request-letters/$S3_KEY
-          echo "✅ Uploaded as s3://nkm-request-letters/$S3_KEY"
+          aws s3 cp build/doc-gen-lambda.zip s3://docutil/$S3_KEY
+          echo "✅ Uploaded as s3://docutil/$S3_KEY"
 
       - name: Done
         run: echo "🎉 Lambda package created and uploaded to S3 successfully!"
